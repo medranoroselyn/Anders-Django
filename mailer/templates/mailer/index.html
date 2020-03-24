@@ -1,0 +1,171 @@
+<!doctype html>
+{% load staticfiles %}
+{% load humanize %} 
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Greetings Cards Spammers</title>
+
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!-- Tell the browser to be responsive to screen width -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<!-- Favicon icon -->
+		<!-- Bootstrap Core CSS -->
+		<link href="../assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<!-- Custom CSS -->
+		<link href="static/style.css" rel="stylesheet">
+		<script async src="{% static "js/jquery-2.1.1.js" %}"></script>
+	<script async>
+	$(document).ready(function(){
+		$("table tr").hover(function(){
+				$("table *").css("background-color", ""); // remove background color from everything (un-hover)
+			hoveretr = this;
+		$("td:contains(.)").each(function(){
+
+	 function processchildrow(theparentrow) {
+		 parenttbl = $(theparentrow).parents("table");
+		 found = 0; // find state machine marker
+		 markrows = new Array();
+		 parenttbl.find("tr").each(function(){
+			 var foundrow = this;
+			 if(found == 0 && foundrow == theparentrow) found = 1;
+			 if(found == 1 && $(foundrow).is(":contains(Orders)")) {
+				 orderscll= $(foundrow).find("td").eq(2);
+				 numorders=+orderscll.text().split(" ")[1]; //use + for faster integer
+				 if(numorders>3) markrows[markrows.length]=foundrow;//put in array for marking later
+				 return
+			 }
+			 if(found == 1 && foundrow != theparentrow  &&  $(foundrow).find("td:first").text().length) // has company name in first cell
+				 found = 2;
+		 });
+		 for(key in markrows) {
+			 row=markrows[key]
+			 $(row).find("td").css("background-color", "yellow");
+		 }
+		 return markrows
+ 
+ 
+	 }
+
+			price = $(this).text();
+			trueprice = "";
+			if (price.indexOf(".", price.length - ".".length) === -1)
+			{
+				trueprice = price;
+			}
+
+			if (trueprice)
+			{
+				if (parseInt(trueprice) > 50000)
+				{
+					finalprice = parseInt(trueprice);
+					firstsib = $(this).siblings(":first");
+					therow = $(firstsib).parents("tr");
+
+					$(therow).find("td").each(function(elem){
+						elem = $(this);
+
+						if(therow[0] !== hoveretr) return; // === better than ==
+
+						if($(elem).css("background-color"))
+							$(elem).css("background-color", ""); // remove background color
+
+						$(elem).css("background-color", 'green');
+						processchildrow(therow[0]);
+					});
+				}
+				else
+				{
+					finalprice = parseInt(trueprice);
+					firstsib = $(this).siblings(":first");
+					therow = $(firstsib).parents("tr");
+
+					$(therow).find("td").each(function(elem){
+						elem = $(this);
+						if(therow[0] !== hoveretr) return; // === better than ==
+
+						if($(elem).css("background-color"))
+							$(elem).css("background-color", ""); // remove background color
+
+						$(elem).css("background-color", 'orange');
+					});
+				}
+			}
+			
+
+		});
+		});
+	});
+	</script>
+</head>
+<body>
+
+
+	<div class="col-md-10">
+		<div class="card">
+			<div class="card-header">
+				<div class="card-actions">
+					<!-- <a class="" data-action="collapse"><i class="ti-minus"></i></a> -->
+					<!-- <a class="btn-minimize" data-action="expand"><i class="mdi mdi-arrow-expand"></i></a> -->
+					<!-- <a class="btn-close" data-action="close"><i class="ti-close"></i></a> -->
+				</div>
+				<!-- <h4 class="card-title m-b-0">Product Overview</h4> -->
+			</div>
+			<div class="card-body collapse show">
+				<div class="table-responsive">
+					<center><table class="table product-overview" style="text-align: center;">
+	<!-- <div style="width:1020px; margin: 0 auto; border:1px solid blue;"> -->
+	<!-- <table width="1020"> -->
+	{% if is_paginated %}
+	<tr><td>
+		{% if page_obj.has_previous %}
+		<a href="?page={{ page_obj.previous_page_number }}" class="pager-prev{% if not page_obj.has_previous %} inactive{% endif %}">Last Page &nbsp; &laquo;</a>
+		{% endif %}
+		</td>
+		<td></td>
+		<td></td>
+		<td>
+		{% if page_obj.has_next %}
+			<a href="?page={{ page_obj.next_page_number }}" class="pager-next{% if not page_obj.has_next %} inactive{% endif %}">Next Page &nbsp; &raquo;</a>
+		{% endif %}
+		</td>
+	</tr>
+	{% endif %}
+	<tr>
+		<th>Company Name</th>
+		<th>Contact Name</th>
+		<th>Order Count</th>
+		<th>Order Sum</th>
+		<th>Select</th>
+	</tr>
+		{% for company in company_list %}
+		<tr>
+			<td>{{ company.name }}</td>
+			<td>{{ contact.first_name }} {{ contact.last_name }}</td>
+			<td>{{ contact.get_order_count }}</td>
+			<td>${{ company.get_order_sum|floatformat:2|intcomma}}</td>
+			<td><input type="checkbox" name="select{{company.pk}}" id=""></td>
+	</tr>
+			{% for contact in company.contacts.all %}
+			<tr>
+				<td></td>
+				<td>{{ contact.first_name }} {{ contact.last_name }}</td>
+				<td>{{ contact.get_order_count }}</td>
+				<td></td>
+				<td></td>
+
+
+				<td></td>
+			</tr>
+			{% endfor %}
+		{% endfor %}
+	</table></center>
+	</div>
+</div>
+</div>
+</div>
+</body>
+</html>
